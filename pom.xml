@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ch.daplab.spark.streaming</groupId>
+    <artifactId>twitter-to-kafka</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <scala.binary.version>2.10</scala.binary.version>
+        <spark.streaming.version>1.4.1</spark.streaming.version>
+        <maven.dependency.plugin.version>2.4</maven.dependency.plugin.version>
+        <log4j.version>1.2.17</log4j.version>
+        <slf4j.version>1.7.10</slf4j.version>
+        <junit.version>4.12</junit.version>
+        <mockito.version>1.10.19</mockito.version>
+        <maven.rpm.plugin.version>2.1.4</maven.rpm.plugin.version>
+
+        <!-- RPM Spec related -->
+        <rpm.license>2015, DAPLAB</rpm.license>
+        <rpm.group>Application/DAPLAB</rpm.group>
+        <rpm.rootprefix>/opt/daplab/twitter-to-kafka</rpm.rootprefix>
+        <rpm.apprefix>${rpm.rootprefix}</rpm.apprefix>
+        <rpm.username>daplab_prod</rpm.username>
+        <rpm.groupname>daplab_prod</rpm.groupname>
+        <rpm.logdirname>logs</rpm.logdirname>
+        <rpm.targetos>el6</rpm.targetos>
+        <rpm.targetArch>x86_64</rpm.targetArch>
+        <rpm.path>${rpm.apprefix}</rpm.path>
+        <rpm.logdirpath>${rpm.apprefix}/${rpm.logdirname}</rpm.logdirpath>
+        <rpm.appname>${project.artifactId}</rpm.appname>
+        <rpm.basedir>${project.artifactId}</rpm.basedir>
+        <rpm.distribution>Twitter-to-Kafka</rpm.distribution>
+    </properties>
+
+    <packaging>jar</packaging>
+    <name>Read Twitter Firehose via Spark Streaming and push into Kafka</name>
+
+    <repositories>
+        <repository>
+            <id>Cloudera</id>
+            <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
+        </repository>
+    </repositories>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
+            <version>${spark.streaming.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
+            <version>${spark.streaming.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
+            <version>${spark.streaming.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
+            <version>${spark.streaming.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>${log4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_${scala.binary.version}</artifactId>
+            <version>0.8.2.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka_${scala.binary.version}</artifactId>
+            <version>0.8.2.1</version>
+            <classifier>test</classifier>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>2.7.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-test</artifactId>
+            <version>2.7.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${junit.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cloudera.spark.streaming.kafka</groupId>
+            <artifactId>spark-kafka-writer</artifactId>
+            <version>0.1.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.9.1</version>
+                <executions>
+                    <execution>
+                        <id>parse-version</id>
+                        <goals>
+                            <goal>parse-version</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>net.alchim31.maven</groupId>
+                <artifactId>scala-maven-plugin</artifactId>
+                <version>3.2.2</version>
+                <executions>
+                    <execution>
+                        <id>eclipse-add-source</id>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-compile-first</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>scala-test-compile-first</id>
+                        <phase>process-test-resources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>attach-scaladocs</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>doc-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Maven Assembly Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>2.4.1</version>
+                <configuration>
+                    <!-- get all project dependencies -->
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                    <!-- MainClass in mainfest make a executable jar -->
+                    <!--archive>
+                        <manifest>
+                            <mainClass>SparkStreaming</mainClass>
+                        </manifest>
+                    </archive-->
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- bind to the packaging phase -->
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <version>${maven.rpm.plugin.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>attached-rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <license>${rpm.license}</license>
+                    <distribution>${rpm.distribution}</distribution>
+                    <group>${rpm.group}</group>
+                    <needarch>${rpm.targetArch}</needarch>
+                    <classifier>${rpm.targetos}.${rpm.targetArch}</classifier>
+                    <name>${rpm.appname}</name>
+                    <version>
+                        ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}
+                    </version>
+                    <release>${rpmRelease}</release>
+                    <defineStatements>
+                        <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
+                        <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                    </defineStatements>
+                    <mappings>
+                        <mapping>
+                            <directory>${rpm.apprefix}</directory>
+                            <filemode>0755</filemode>
+                            <username>${rpm.username}</username>
+                            <groupname>${rpm.groupname}</groupname>
+                        </mapping>
+                        <!-- Top level directory -->
+                        <!--Remember ALWAYS ensure that the base dir managed by RPM is the
+                            top level directory of the tool itself. Do NOT specify /app or /app/vscc
+                            on its own for example as this top level VSCC directory is shared across
+                            all VSCC tools and should NEVER be owned by RPM. Think of it as /usr/local
+                            etc -->
+                        <mapping>
+                            <directory>${rpm.path}</directory>
+                            <filemode>0755</filemode>
+                            <username>${rpm.username}</username>
+                            <groupname>${rpm.groupname}</groupname>
+                        </mapping>
+                        <mapping>
+                            <directory>${rpm.path}/lib</directory>
+                            <recurseDirectories>true</recurseDirectories>
+                            <filemode>0755</filemode>
+                            <username>${rpm.username}</username>
+                            <groupname>${rpm.groupname}</groupname>
+                            <sources>
+                                <source>
+                                    <location>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar
+                                    </location>
+                                </source>
+                                <softlinkSource>
+                                    <destination>${project.artifactId}-jar-with-dependencies.jar</destination>
+                                    <location>${project.artifactId}-${project.version}-jar-with-dependencies.jar</location>
+                                </softlinkSource>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>${rpm.path}/logs</directory>
+                            <recurseDirectories>true</recurseDirectories>
+                            <filemode>0755</filemode>
+                            <username>${rpm.username}</username>
+                            <groupname>${rpm.groupname}</groupname>
+                        </mapping>
+                    </mappings>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>rpmRelease.defaultValue</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>!rpmRelease</name>
+                </property>
+            </activation>
+            <properties>
+                <rpmRelease>1</rpmRelease>
+            </properties>
+        </profile>
+    </profiles>
+</project>
