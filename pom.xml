@@ -134,20 +134,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <version>1.9.1</version>
-                <executions>
-                    <execution>
-                        <id>parse-version</id>
-                        <goals>
-                            <goal>parse-version</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
                 <groupId>net.alchim31.maven</groupId>
                 <artifactId>scala-maven-plugin</artifactId>
                 <version>3.2.2</version>
@@ -209,78 +195,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-                <version>${maven.rpm.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>attached-rpm</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <license>${rpm.license}</license>
-                    <distribution>${rpm.distribution}</distribution>
-                    <group>${rpm.group}</group>
-                    <needarch>${rpm.targetArch}</needarch>
-                    <classifier>${rpm.targetos}.${rpm.targetArch}</classifier>
-                    <name>${rpm.appname}</name>
-                    <version>
-                        ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}
-                    </version>
-                    <release>${rpmRelease}</release>
-                    <defineStatements>
-                        <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
-                        <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
-                    </defineStatements>
-                    <mappings>
-                        <mapping>
-                            <directory>${rpm.apprefix}</directory>
-                            <filemode>0755</filemode>
-                            <username>${rpm.username}</username>
-                            <groupname>${rpm.groupname}</groupname>
-                        </mapping>
-                        <!-- Top level directory -->
-                        <!--Remember ALWAYS ensure that the base dir managed by RPM is the
-                            top level directory of the tool itself. Do NOT specify /app or /app/vscc
-                            on its own for example as this top level VSCC directory is shared across
-                            all VSCC tools and should NEVER be owned by RPM. Think of it as /usr/local
-                            etc -->
-                        <mapping>
-                            <directory>${rpm.path}</directory>
-                            <filemode>0755</filemode>
-                            <username>${rpm.username}</username>
-                            <groupname>${rpm.groupname}</groupname>
-                        </mapping>
-                        <mapping>
-                            <directory>${rpm.path}/lib</directory>
-                            <recurseDirectories>true</recurseDirectories>
-                            <filemode>0755</filemode>
-                            <username>${rpm.username}</username>
-                            <groupname>${rpm.groupname}</groupname>
-                            <sources>
-                                <source>
-                                    <location>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar
-                                    </location>
-                                </source>
-                                <softlinkSource>
-                                    <destination>${project.artifactId}-jar-with-dependencies.jar</destination>
-                                    <location>${project.artifactId}-${project.version}-jar-with-dependencies.jar</location>
-                                </softlinkSource>
-                            </sources>
-                        </mapping>
-                        <mapping>
-                            <directory>${rpm.path}/logs</directory>
-                            <recurseDirectories>true</recurseDirectories>
-                            <filemode>0755</filemode>
-                            <username>${rpm.username}</username>
-                            <groupname>${rpm.groupname}</groupname>
-                        </mapping>
-                    </mappings>
-                </configuration>
-            </plugin>
         </plugins>
     </build>
 
@@ -296,6 +210,98 @@
             <properties>
                 <rpmRelease>1</rpmRelease>
             </properties>
+        </profile>
+        <profile>
+            <id>rpm</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>parse-version</id>
+                                <goals>
+                                    <goal>parse-version</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>${maven.rpm.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>attached-rpm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <license>${rpm.license}</license>
+                            <distribution>${rpm.distribution}</distribution>
+                            <group>${rpm.group}</group>
+                            <needarch>${rpm.targetArch}</needarch>
+                            <classifier>${rpm.targetos}.${rpm.targetArch}</classifier>
+                            <name>${rpm.appname}</name>
+                            <version>
+                                ${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}
+                            </version>
+                            <release>${rpmRelease}</release>
+                            <defineStatements>
+                                <defineStatement>_binaries_in_noarch_packages_terminate_build 0</defineStatement>
+                                <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                            </defineStatements>
+                            <mappings>
+                                <mapping>
+                                    <directory>${rpm.apprefix}</directory>
+                                    <filemode>0755</filemode>
+                                    <username>${rpm.username}</username>
+                                    <groupname>${rpm.groupname}</groupname>
+                                </mapping>
+                                <!-- Top level directory -->
+                                <!--Remember ALWAYS ensure that the base dir managed by RPM is the
+                                    top level directory of the tool itself. Do NOT specify /app or /app/vscc
+                                    on its own for example as this top level VSCC directory is shared across
+                                    all VSCC tools and should NEVER be owned by RPM. Think of it as /usr/local
+                                    etc -->
+                                <mapping>
+                                    <directory>${rpm.path}</directory>
+                                    <filemode>0755</filemode>
+                                    <username>${rpm.username}</username>
+                                    <groupname>${rpm.groupname}</groupname>
+                                </mapping>
+                                <mapping>
+                                    <directory>${rpm.path}/lib</directory>
+                                    <recurseDirectories>true</recurseDirectories>
+                                    <filemode>0755</filemode>
+                                    <username>${rpm.username}</username>
+                                    <groupname>${rpm.groupname}</groupname>
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/${project.artifactId}-${project.version}-jar-with-dependencies.jar
+                                            </location>
+                                        </source>
+                                        <softlinkSource>
+                                            <destination>${project.artifactId}-jar-with-dependencies.jar</destination>
+                                            <location>${project.artifactId}-${project.version}-jar-with-dependencies.jar</location>
+                                        </softlinkSource>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>${rpm.path}/logs</directory>
+                                    <recurseDirectories>true</recurseDirectories>
+                                    <filemode>0755</filemode>
+                                    <username>${rpm.username}</username>
+                                    <groupname>${rpm.groupname}</groupname>
+                                </mapping>
+                            </mappings>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>
