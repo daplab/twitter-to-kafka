@@ -11,7 +11,9 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <scala.binary.version>2.10</scala.binary.version>
-        <spark.streaming.version>1.4.1</spark.streaming.version>
+        <spark.streaming.version>1.5.2.2.3.4.0-3485</spark.streaming.version>
+        <kafka.version>0.9.0.2.3.4.0-3485</kafka.version>
+        <curator.version>2.7.1</curator.version>
         <maven.dependency.plugin.version>2.4</maven.dependency.plugin.version>
         <log4j.version>1.2.17</log4j.version>
         <slf4j.version>1.7.10</slf4j.version>
@@ -20,7 +22,7 @@
         <maven.rpm.plugin.version>2.1.4</maven.rpm.plugin.version>
 
         <!-- RPM Spec related -->
-        <rpm.license>2015, DAPLAB</rpm.license>
+        <rpm.license>2015-2016, DAPLAB</rpm.license>
         <rpm.group>Application/DAPLAB</rpm.group>
         <rpm.rootprefix>/opt/daplab/twitter-to-kafka</rpm.rootprefix>
         <rpm.apprefix>${rpm.rootprefix}</rpm.apprefix>
@@ -43,6 +45,16 @@
         <repository>
             <id>Cloudera</id>
             <url>https://repository.cloudera.com/artifactory/cloudera-repos</url>
+        </repository>
+        <repository>
+            <id>HWX-Release</id>
+            <name>Artifactory-HWX-Release</name>
+            <url>http://repo.hortonworks.com/content/repositories/releases/</url>
+        </repository>
+        <repository>
+            <id>HWX-jetty-hadoop</id>
+            <name>Artifactory-HWX-jetty-hadop</name>
+            <url>http://repo.hortonworks.com/content/repositories/jetty-hadoop/</url>
         </repository>
     </repositories>
 
@@ -86,25 +98,25 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.binary.version}</artifactId>
-            <version>0.8.2.1</version>
+            <version>${kafka.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_${scala.binary.version}</artifactId>
-            <version>0.8.2.1</version>
+            <version>${kafka.version}</version>
             <classifier>test</classifier>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-framework</artifactId>
-            <version>2.7.1</version>
+            <version>${curator.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-test</artifactId>
-            <version>2.7.1</version>
+            <version>${curator.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
