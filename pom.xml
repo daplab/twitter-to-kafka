@@ -5,13 +5,13 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ch.daplab.spark.streaming</groupId>
     <artifactId>twitter-to-kafka</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <scala.binary.version>2.10</scala.binary.version>
-        <spark.streaming.version>1.5.2.2.3.4.0-3485</spark.streaming.version>
+        <spark.version>1.5.2.2.3.4.0-3485</spark.version>
         <kafka.version>0.9.0.2.3.4.0-3485</kafka.version>
         <curator.version>2.7.1</curator.version>
         <maven.dependency.plugin.version>2.4</maven.dependency.plugin.version>
@@ -62,25 +62,25 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${scala.binary.version}</artifactId>
-            <version>${spark.streaming.version}</version>
+            <version>${spark.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_${scala.binary.version}</artifactId>
-            <version>${spark.streaming.version}</version>
+            <version>${spark.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-kafka_${scala.binary.version}</artifactId>
-            <version>${spark.streaming.version}</version>
+            <version>${spark.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming-twitter_${scala.binary.version}</artifactId>
-            <version>${spark.streaming.version}</version>
+            <version>${spark.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
